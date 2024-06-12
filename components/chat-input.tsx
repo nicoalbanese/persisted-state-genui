@@ -1,12 +1,12 @@
 "use client";
 
-import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { useActions, useUIState } from "ai/rsc";
 import { ClientMessage } from "@/app/chat/[chatId]/actions";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { Input } from "./ui/input";
+import { ChatMessage } from "./chat-message";
 
 export const ChatInput = () => {
   const [input, setInput] = useState<string>("");
@@ -23,7 +23,11 @@ export const ChatInput = () => {
           setInput("");
           setConversation((currentConversation: ClientMessage[]) => [
             ...currentConversation,
-            { id: nanoid(), role: "user", display: input },
+            {
+              id: nanoid(),
+              role: "user",
+              display: <ChatMessage role="user">{input}</ChatMessage>,
+            },
           ]);
 
           const message = await continueConversation(input);

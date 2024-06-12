@@ -1,26 +1,35 @@
-"use client";
-
-import { ClientMessage } from "./actions";
-import { useUIState } from "ai/rsc";
 import { ChatInput } from "@/components/chat-input";
+import { ChatMessages } from "@/components/chat-messages";
+import { AI } from "./actions";
+import { getChat } from "@/lib/db/api";
+import { notFound } from "next/navigation";
 
-export default function Home() {
-  const [conversation, _] = useUIState();
-
+export default async function Home({ params }: { params: { chatId: string } }) {
+  const chat = await getChat(params.chatId);
+  if (chat === null) notFound();
   return (
-    <div className="p-4">
-      <h1 className="font-semibold text-2xl my-2">Vercel Chatbot!</h1>
-      <div className="space-y-4">
-        {conversation.map((message: ClientMessage) => (
-          <div key={message.id} className="border-t border-border pt-2">
-            <div className="font-semibold uppercase text-xs text-neutral-400">
-              {message.role}
-            </div>
-            <div>{message.display}</div>
-          </div>
-        ))}
+    <AI
+      initialAIState={{
+        chatId: params.chatId,
+        // @ts-expect-error
+        messages: chat.messages
+          .filter((m) => m !== null)
+          .map((m) => {
+            console.log(m);
+            return {
+              content: m?.content?.includes("tool-")
+                ? JSON.parse(m?.content)
+                : m?.content,
+              role: m?.role,
+            };
+          }),
+      }}
+    >
+      <div className="p-4">
+        <h1 className="font-semibold text-2xl my-2">Vercel Chatbot!</h1>
+        <ChatMessages />
+        <ChatInput />
       </div>
-      <ChatInput />
-    </div>
+    </AI>
   );
 }
