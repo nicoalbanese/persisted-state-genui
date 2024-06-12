@@ -163,7 +163,7 @@ export const AI = createAI<AIState, UIState>({
   initialAIState: { chatId: chatId, messages: [] },
   initialUIState: [],
   onGetUIState: async () => {
-    ("use server");
+    "use server";
     const aiState = getAIState() as Readonly<AIState>;
     console.log(aiState);
 
